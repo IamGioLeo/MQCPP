@@ -3,7 +3,7 @@ from gurobipy import GRB
 from MQCPP import (MQCPP_solver)
 
 
-def gurobi(graph, gamma):
+def gurobi(graph, gamma,cutoff_time):
     n = graph.number_of_nodes()
     initial_solution = MQCPP_solver(graph, gamma).generate_initial_solution()
     UB = max(initial_solution) + 1
@@ -24,7 +24,7 @@ def gurobi(graph, gamma):
     MQCPP.addConstrs(y[i] >= y[i + 1] for i in range(UB-1))
     MQCPP.addConstrs(gb.quicksum(w[u,v,i] for u in range(1, n + 1) for v in range(1, n + 1) if (u < v and graph.has_edge(u,v))) >= gamma * gb.quicksum(w[u,v,i] for u in range(1, n + 1) for v in range(1, n + 1) if (u < v)) for i in range(UB))
 
-    MQCPP.setParam('TimeLimit', 300)
+    MQCPP.setParam('TimeLimit', cutoff_time)
     MQCPP.optimize()
 
     return MQCPP.objVal, x, UB, MQCPP

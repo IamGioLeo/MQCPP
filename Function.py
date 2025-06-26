@@ -83,10 +83,10 @@ def _run_ils_solver(graph, gamma, cutoff_time, alpha, beta, tabu_tenure_upperbou
     }
 
 
-def _run_gurobi_solver(graph, gamma):
+def _run_gurobi_solver(graph, gamma, cutoff_time):
     print("gurobi result:")
     starting_time = datetime.datetime.now()
-    best_solution, x, UB, MQCPP = gurobi(graph, gamma)
+    best_solution, x, UB, MQCPP = gurobi(graph, gamma, cutoff_time)
     total_time = (datetime.datetime.now() - starting_time).total_seconds()
 
     print(f"Time needed: {total_time}")
@@ -115,14 +115,14 @@ def _handle_gurobi_error(graph_name, dimension, graph, gamma, csv_path):
         _write_csv_results(csv_path, 'gurobi', error_result)
 
 
-def _process_instance(graph, graph_name, gamma, cutoff_time, alpha, beta,
+def _process_instance(graph, graph_name, gamma, cutoff_time, cutoff_time_gurobi, alpha, beta,
                       tabu_tenure_upperbound, dimension, plot_flag, gurobi_flag, csv_path):
     print(f"\nInstance: [Graph: {graph_name}, Gamma: {gamma}]")
     print(f"Number of nodes:{graph.number_of_nodes()}, number of edges: {graph.number_of_edges()}\n")
 
     ils_results = _run_ils_solver(graph, gamma, cutoff_time, alpha, beta, tabu_tenure_upperbound)
 
-    if plot_flag:
+    if plot_flag and dimension == 'small':
         plot_solution(graph, ils_results['subgraphs'], graph_name, gamma)
 
     if csv_path:
@@ -135,7 +135,7 @@ def _process_instance(graph, graph_name, gamma, cutoff_time, alpha, beta,
 
     if gurobi_flag:
         try:
-            gurobi_results = _run_gurobi_solver(graph, gamma)
+            gurobi_results = _run_gurobi_solver(graph, gamma, cutoff_time_gurobi)
 
             if plot_flag and dimension == 'small':
                 plot_gurobi_solution(graph, gurobi_results['x'], gurobi_results['UB'], gamma, graph_name)
@@ -154,17 +154,17 @@ def _process_instance(graph, graph_name, gamma, cutoff_time, alpha, beta,
 
 
 def function(instances_file_paths, gammas, cutoff_times, plot_flag: bool = True, gurobi_flag: bool = False,
-             csv_path: str = '', alpha: int = 10000, beta: int = 5000):
+             csv_path: str = '', cutoff_time_gurobi: int = 30, alpha: int = 10000, beta: int = 5000):
     for file_path in instances_file_paths:
         graph_name = file_path.split("/")[-1]
         graph = _parse_graph_from_file(file_path)
         tabu_tenure_upperbound = int(floor(graph.number_of_nodes() * 0.2))
-        if graph.number_of_nodes() <= 118:
+        if graph.number_of_nodes() <= 138:
             dimension = 'small'
             cutoff_time = cutoff_times[0]
         else:
             dimension = 'large'
             cutoff_time = cutoff_times[1]
         for gamma in gammas:
-            _process_instance(graph, graph_name, gamma, cutoff_time, alpha, beta,
+            _process_instance(graph, graph_name, gamma, cutoff_time, cutoff_time_gurobi, alpha, beta,
                               tabu_tenure_upperbound, dimension, plot_flag, gurobi_flag, csv_path)
