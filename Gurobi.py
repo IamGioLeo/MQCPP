@@ -21,7 +21,7 @@ def gurobi(graph, gamma):
     MQCPP.addConstrs(x[u,i]+ x[v,i] <= w[u,v,i] + 1 for u in range(1, n + 1) for v in range(1, n + 1) if u < v for i in range(UB))
     MQCPP.addConstrs(w[u,v,i] <= x[u,i] for u in range(1, n + 1) for v in range(1, n + 1) if u < v for i in range(UB))
     MQCPP.addConstrs(w[u,v,i] <= x[v,i] for u in range(1, n + 1) for v in range(1, n + 1) if u < v for i in range(UB))
-    MQCPP.addConstrs(y[i] >= y [i + 1] for i in range(UB-1))
+    MQCPP.addConstrs(y[i] >= y[i + 1] for i in range(UB-1))
     MQCPP.addConstrs(gb.quicksum(w[u,v,i] for u in range(1, n + 1) for v in range(1, n + 1) if (u < v and graph.has_edge(u,v))) >= gamma * gb.quicksum(w[u,v,i] for u in range(1, n + 1) for v in range(1, n + 1) if (u < v)) for i in range(UB))
 
     MQCPP.optimize()

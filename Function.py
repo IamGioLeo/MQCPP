@@ -40,7 +40,6 @@ def _write_csv_results(csv_path, solver_name, result_data):
         if not file_exists:
             writer.writeheader()
         writer.writerows([result_data])
-    print(f"Risultati aggiunti in {results_path}")
 
 
 def _create_result_data(graph_name, dimension, graph, gamma, total_time,

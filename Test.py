@@ -17,10 +17,10 @@ scalability_instances_file_paths = ['instances/p-hat500-3.mtx','instances/662_bu
 seed = 42
 random.seed(seed)
 np.random.seed(seed)
-gammas = [0.3, 0.6, 0.8, 0.9]
-cutoff_times = [300, 500]
-plot = False
-gurobi_flag = False
+gammas = [0.3, 0.6, 0.8,]
+cutoff_times = [3, 3]
+plot = True
+gurobi_flag = True
 test_csv_path = '01_final_test'
 
 function(test_instances_file_paths, gammas, cutoff_times, plot, gurobi_flag, test_csv_path)
