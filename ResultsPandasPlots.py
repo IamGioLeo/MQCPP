@@ -8,7 +8,7 @@ actual_csv_path = 'not_git/first_real_test_ILS.csv'
 test_ILS_path = '01_final_test_ILS.csv'
 test_gurobi_path = '01_final_test_gurobi.csv'
 scalability_ILS_path = '01_final_scalability_ILS.csv'
-scalability_gurobi_path = ''
+scalability_gurobi_path = '01_final_scalability_gurobi.csv'
 
 
 def csv_to_table(ILS_path, gurobi_path):
@@ -279,7 +279,7 @@ def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path):
     plt.grid(True, axis='y')
     plt.show()
 
-best_solution_comparison_ILS_gurobi(test_ILS_path, test_gurobi_path)
+best_solution_comparison_ILS_gurobi(scalability_ILS_path, scalability_gurobi_path)
 
 def time_comparison_ILS_gurobi(ILS_path, gurobi_path):
     df1 = pd.read_csv(ILS_path)
@@ -303,4 +303,4 @@ def time_comparison_ILS_gurobi(ILS_path, gurobi_path):
     plt.grid(True, axis= 'y')
     plt.show()
 
-time_comparison_ILS_gurobi(test_ILS_path, test_gurobi_path)
+time_comparison_ILS_gurobi(scalability_ILS_path, scalability_gurobi_path)
