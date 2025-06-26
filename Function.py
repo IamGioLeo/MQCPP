@@ -97,7 +97,9 @@ def _run_gurobi_solver(graph, gamma):
         'total_time': total_time,
         'best_solution': best_solution,
         'x': x,
-        'UB': UB
+        'UB': UB,
+        'MQCPP': MQCPP
+
     }
 
 
