@@ -5,8 +5,10 @@ import seaborn as sns
 import numpy as np
 
 actual_csv_path = 'not_git/first_real_test_ILS.csv'
-actual_ILS_path = 'not_git/second_real_test_ILS.csv'
-actual_gurobi_csv_path = 'not_git/second_real_test_gurobi.csv'
+test_ILS_path = '01_final_test_ILS.csv'
+test_gurobi_path = '01_final_test_gurobi.csv'
+scalability_ILS_path = '01_final_scalability_ILS.csv'
+scalability_gurobi_path = ''
 
 
 def csv_to_table(ILS_path, gurobi_path):
@@ -28,7 +30,7 @@ def csv_to_table(ILS_path, gurobi_path):
     columns_to_print = ["Graph", "Gamma", "Time", "IS_time", "S_time", "S"]
     print(df_to_print[columns_to_print])
 
-csv_to_table(actual_ILS_path,actual_gurobi_csv_path)
+csv_to_table(test_ILS_path,test_gurobi_path)
 
 def boxplot_log_time_for_gamma(csv_path):
     df = pd.read_csv(csv_path)
@@ -274,9 +276,10 @@ def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path):
     plt.xticks(rotation=45, ha="right")
     plt.tight_layout()
     plt.legend(title="Solver")
+    plt.grid(True, axis='y')
     plt.show()
 
-best_solution_comparison_ILS_gurobi(actual_ILS_path, actual_gurobi_csv_path)
+best_solution_comparison_ILS_gurobi(test_ILS_path, test_gurobi_path)
 
 def time_comparison_ILS_gurobi(ILS_path, gurobi_path):
     df1 = pd.read_csv(ILS_path)
@@ -291,11 +294,13 @@ def time_comparison_ILS_gurobi(ILS_path, gurobi_path):
     pivot = grouped.pivot(index="Instance", columns="Solver", values="Best_solution_time")
 
     pivot.plot(kind="bar", figsize=(12, 6))
+    plt.yscale("log")
     plt.ylabel("Average Best Solution Size")
     plt.title("Comparison of Best Solution Time by Instance and Solver")
     plt.xticks(rotation=45, ha="right")
     plt.tight_layout()
     plt.legend(title="Solver")
+    plt.grid(True, axis= 'y')
     plt.show()
 
-time_comparison_ILS_gurobi(actual_ILS_path, actual_gurobi_csv_path)
+time_comparison_ILS_gurobi(test_ILS_path, test_gurobi_path)

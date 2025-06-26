@@ -6,10 +6,6 @@ import numpy as np
 import itertools
 from collections import defaultdict
 
-'''Una soluzione è rappresentata come array di interi in cui se l'elemento i-mo ha valore j, questo indica che il vertice i è associato alla gamma clique clique j
-le clique hanno valori da 0 in poi e si vuole fare in modo tale che i numeri delle gamma clique siano contigui, se un elemento ha valore -1 allora il vertice non è
-associato a nessuna gamma clique'''
-
 def objective_function(solution):
     return int(solution.max()) + 1
 
@@ -292,10 +288,9 @@ class MQCPP_solver:
         best_solution = current_solution.copy()
 
         self.initial_solution_time = (datetime.datetime.now() - initial_solution_starting_time).total_seconds()
-        print(f"initial solution time: {self.initial_solution_time}")
+
 
         self.best_solution_time = self.initial_solution_time
-
         starting_time = datetime.datetime.now()
         while ((datetime.datetime.now() - starting_time).total_seconds() < cutoff_time):
             if objective_function(best_solution) == 1:
@@ -305,7 +300,7 @@ class MQCPP_solver:
                 best_solution = found_solution.copy()
                 self.best_solution_time = (datetime.datetime.now() - initial_solution_starting_time).total_seconds()
             current_solution = self.greedy_based_perturbation(current_solution)
-        print(f"best solution time: {self.best_solution_time}")
+
         return best_solution
 
     def two_phase_local_search(self, current_solution, alpha, beta):
@@ -362,7 +357,6 @@ class MQCPP_solver:
 
                 update_tabu_list(self.tabu_list)
 
-                # L'if messo risolve il caso in cui reallocate rimuove una clique dalla soluzione, rendendo gli indici obsoleti
                 if (old_max == objective_function(solution)):
                   target_cliques = [from_clique, to_clique] if to_clique != from_clique else [to_clique]
                 else:
