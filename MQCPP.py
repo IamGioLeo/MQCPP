@@ -10,8 +10,10 @@ import numpy as np
 def objective_function(solution):
     return int(solution.max()) + 1
 
+
 def sort_based_degree(graph):
     return sorted(graph.nodes, key=lambda x: graph.degree(x), reverse=True)
+
 
 def update_M_union(M, i, j):
     new_col = M[:, i] + M[:, j]
@@ -73,46 +75,48 @@ class MQCPP_solver:
         self.tabu_tenure_upper_bound = -1
         self.node_to_index = {u: r for r, u in enumerate(graph.nodes())}
         self.index_to_node = {i: u for u, i in self.node_to_index.items()}
-        self.edges_per_clique = []
+        self.gamma_clique_edges_and_nodes = []
         self.best_solution_time = None
         self.initial_solution_time = None
 
     def nodes_to_clique_edge_count(self, member_indices, clique_index):
         count = 0
         for i in member_indices:
-          count += self.M[i, clique_index]
+            count += self.M[i, clique_index]
         return count
 
     def update_solution(self, solution, gamma_clique_to_check):
-      if gamma_clique_to_check in solution:
+        if gamma_clique_to_check in solution:
+            return solution
+
+        self.M = update_M_removal(self.M, gamma_clique_to_check)
+        del self.gamma_clique_edges_and_nodes[gamma_clique_to_check]
+        solution = np.where(solution > gamma_clique_to_check, solution - 1, solution)
         return solution
 
-      self.M = update_M_removal(self.M, gamma_clique_to_check)
-      del self.edges_per_clique[gamma_clique_to_check]
-      solution = np.where(solution > gamma_clique_to_check, solution - 1, solution)
-      return solution
-
     def verify_reallocate(self, node, from_clique_id, to_clique_id):
-        edge_count_from = self.edges_per_clique[from_clique_id][0] - self.M[self.node_to_index[node]][from_clique_id]
+        edge_count_from = self.gamma_clique_edges_and_nodes[from_clique_id][0] - self.M[self.node_to_index[node]][
+            from_clique_id]
 
-        edge_count_to = self.edges_per_clique[to_clique_id][0] + self.M[self.node_to_index[node]][to_clique_id]
+        edge_count_to = self.gamma_clique_edges_and_nodes[to_clique_id][0] + self.M[self.node_to_index[node]][
+            to_clique_id]
 
-        valid_from = edge_count_from >= self.z[self.edges_per_clique[from_clique_id][1] - 1]
-        valid_to = edge_count_to >= self.z[self.edges_per_clique[to_clique_id][1] + 1]
+        valid_from = edge_count_from >= self.z[self.gamma_clique_edges_and_nodes[from_clique_id][1] - 1]
+        valid_to = edge_count_to >= self.z[self.gamma_clique_edges_and_nodes[to_clique_id][1] + 1]
 
         return valid_from and valid_to
 
     def verify_allocation(self, node, clique_id):
-        edge_count = self.edges_per_clique[clique_id][0] + self.M[self.node_to_index[node]][clique_id]
+        edge_count = self.gamma_clique_edges_and_nodes[clique_id][0] + self.M[self.node_to_index[node]][clique_id]
 
-        return edge_count >= self.z[self.edges_per_clique[clique_id][1] + 1]
+        return edge_count >= self.z[self.gamma_clique_edges_and_nodes[clique_id][1] + 1]
 
     def identify_gamma_clique_to_remove(self, solution):
-        unique_cliques = [c for c in np.unique(solution) if c != -1]
-        if not unique_cliques:
+        gamma_clique_identifiers = [c for c in np.unique(solution) if c != -1]
+        if not gamma_clique_identifiers:
             return -2
 
-        unallocable_counts = {clique_id: 0 for clique_id in unique_cliques}
+        unallocable_counts = {gamma_clique_id: 0 for gamma_clique_id in gamma_clique_identifiers}
 
         for node in self.graph.nodes():
             node_idx = self.node_to_index[node]
@@ -122,7 +126,7 @@ class MQCPP_solver:
                 continue
 
             allocable_elsewhere = False
-            for other_clique in unique_cliques:
+            for other_clique in gamma_clique_identifiers:
                 if other_clique == current_clique:
                     continue
                 if self.verify_allocation(node, other_clique):
@@ -141,7 +145,7 @@ class MQCPP_solver:
         best_gain = -float('inf')
         best_moves = []
 
-        all_clique_ids = [c for c in np.unique(solution) if c != -1]
+        gamma_clique_identifiers = [c for c in np.unique(solution) if c != -1]
 
         for node_idx in range(len(solution)):
             node = self.index_to_node[node_idx]
@@ -152,7 +156,7 @@ class MQCPP_solver:
             if from_clique == -1:
                 continue
 
-            for to_clique in all_clique_ids:
+            for to_clique in gamma_clique_identifiers:
                 if to_clique == from_clique:
                     continue
 
@@ -173,10 +177,10 @@ class MQCPP_solver:
         best_i, best_j = -1, -1
         max_intersection = -1
 
-        unique_cliques = [c for c in np.unique(solution) if c != -1]
+        gamma_clique_identifiers = [c for c in np.unique(solution) if c != -1]
 
-        for idx_i, ci in enumerate(unique_cliques):
-            for cj in unique_cliques[idx_i + 1:]:
+        for idx_i, ci in enumerate(gamma_clique_identifiers):
+            for cj in gamma_clique_identifiers[idx_i + 1:]:
                 indices_i = np.where(solution == ci)[0]
 
                 inter_edges = self.nodes_to_clique_edge_count(indices_i, cj)
@@ -194,10 +198,10 @@ class MQCPP_solver:
         self.tabu_list.append((node, tenure))
 
         self.M = update_M_reallocation(self.graph, self.M, node, from_clique, to_clique, self.node_to_index)
-        self.edges_per_clique[from_clique][0] -= self.M[node_idx][from_clique]
-        self.edges_per_clique[from_clique][1] -= 1
-        self.edges_per_clique[to_clique][0] += self.M[node_idx][to_clique]
-        self.edges_per_clique[to_clique][1] += 1
+        self.gamma_clique_edges_and_nodes[from_clique][0] -= self.M[node_idx][from_clique]
+        self.gamma_clique_edges_and_nodes[from_clique][1] -= 1
+        self.gamma_clique_edges_and_nodes[to_clique][0] += self.M[node_idx][to_clique]
+        self.gamma_clique_edges_and_nodes[to_clique][1] += 1
         solution = self.update_solution(solution, from_clique)
         return solution
 
@@ -206,18 +210,19 @@ class MQCPP_solver:
 
         while merged:
             merged = False
-            unique_cliques = [c for c in np.unique(solution) if c != -1]
+            gamma_clique_identifiers = [c for c in np.unique(solution) if c != -1]
             best_pair = None
             best_density = self.gamma
 
-            for ci, cj in itertools.combinations(unique_cliques, 2):
+            for ci, cj in itertools.combinations(gamma_clique_identifiers, 2):
                 indices_i = np.where(solution == ci)[0]
-                num_nodes = len(indices_i) + self.edges_per_clique[cj][1]
+                num_nodes = len(indices_i) + self.gamma_clique_edges_and_nodes[cj][1]
 
                 if num_nodes <= 1:
                     continue
 
-                edge_count = self.edges_per_clique[ci][0] + self.edges_per_clique[cj][0] + self.nodes_to_clique_edge_count(indices_i, cj)
+                edge_count = self.gamma_clique_edges_and_nodes[ci][0] + self.gamma_clique_edges_and_nodes[cj][
+                    0] + self.nodes_to_clique_edge_count(indices_i, cj)
 
                 density = (2 * edge_count) / (num_nodes * (num_nodes - 1))
 
@@ -232,7 +237,11 @@ class MQCPP_solver:
                 merged = True
 
                 self.M = update_M_union(self.M, ci, cj)
-                self.edges_per_clique.append([(self.edges_per_clique[ci][0] + self.edges_per_clique[cj][0] + self.nodes_to_clique_edge_count(np.where(solution == ci)[0], cj)), (self.edges_per_clique[ci][1] + self.edges_per_clique[cj][1])])
+                self.gamma_clique_edges_and_nodes.append([(self.gamma_clique_edges_and_nodes[ci][0] +
+                                                           self.gamma_clique_edges_and_nodes[cj][
+                                                               0] + self.nodes_to_clique_edge_count(
+                        np.where(solution == ci)[0], cj)), (self.gamma_clique_edges_and_nodes[ci][1] +
+                                                            self.gamma_clique_edges_and_nodes[cj][1])])
                 solution = self.update_solution(solution, max(ci, cj))
                 solution = self.update_solution(solution, min(ci, cj))
 
@@ -240,32 +249,32 @@ class MQCPP_solver:
 
     def greedy_allocate(self, solution, node):
         node_idx = self.node_to_index[node]
-        best_clique = None
+        best_gamma_clique = None
         best_density = 0
 
-        for clique_id in np.unique(solution):
-            if clique_id == -1:
+        for gamma_clique_id in np.unique(solution):
+            if gamma_clique_id == -1:
                 continue
 
-            clique_indices = np.where(solution == clique_id)[0]
+            clique_indices = np.where(solution == gamma_clique_id)[0]
             candidate_size = len(clique_indices) + 1
 
-            edges_count = self.edges_per_clique[clique_id][0] + self.M[self.node_to_index[node]][clique_id]
+            edges_count = self.gamma_clique_edges_and_nodes[gamma_clique_id][0] + self.M[self.node_to_index[node]][gamma_clique_id]
 
             density = (2 * edges_count) / (candidate_size * (candidate_size - 1)) if candidate_size > 1 else 0
 
             if density > best_density:
                 best_density = density
-                best_clique = clique_id
+                best_gamma_clique = gamma_clique_id
 
-        if best_clique is not None and best_density >= self.gamma:
-            self.M = update_M_allocation(self.graph, self.M, node, best_clique, self.node_to_index)
-            self.edges_per_clique[best_clique][0] += self.M[node_idx][best_clique]
-            self.edges_per_clique[best_clique][1] += 1
-            solution[node_idx] = best_clique
+        if best_gamma_clique is not None and best_density >= self.gamma:
+            self.M = update_M_allocation(self.graph, self.M, node, best_gamma_clique, self.node_to_index)
+            self.gamma_clique_edges_and_nodes[best_gamma_clique][0] += self.M[node_idx][best_gamma_clique]
+            self.gamma_clique_edges_and_nodes[best_gamma_clique][1] += 1
+            solution[node_idx] = best_gamma_clique
         else:
             self.M = update_M_addition(self.graph, self.M, node, self.node_to_index)
-            self.edges_per_clique.append([0, 1])
+            self.gamma_clique_edges_and_nodes.append([0, 1])
             solution[node_idx] = int(solution.max()) + 1
 
         return solution
@@ -289,7 +298,6 @@ class MQCPP_solver:
         best_solution = current_solution.copy()
 
         self.initial_solution_time = (datetime.datetime.now() - initial_solution_starting_time).total_seconds()
-
 
         self.best_solution_time = self.initial_solution_time
         starting_time = datetime.datetime.now()
@@ -328,8 +336,8 @@ class MQCPP_solver:
 
     def remove_repair_based_tabu_search(self, search_depth, solution):
         best_solution = solution.copy()
-        M_best_solution = deepcopy(self.M)
-        edges_per_clique_best_solution = deepcopy(self.edges_per_clique)
+        M_best_solution = np.copy(self.M)
+        edges_per_clique_best_solution = deepcopy(self.gamma_clique_edges_and_nodes)
 
         while True:
             if np.all(solution == -1):
@@ -345,7 +353,7 @@ class MQCPP_solver:
 
             remaining_cliques = [c for c in np.unique(solution) if c != -1]
             nodes_to_reallocate, solution = self.reinsert(nodes_to_reallocate, solution,
-                                                                  remaining_cliques)
+                                                          remaining_cliques)
 
             i = 0
             while nodes_to_reallocate and i < search_depth:
@@ -359,32 +367,32 @@ class MQCPP_solver:
                 update_tabu_list(self.tabu_list)
 
                 if (old_max == objective_function(solution)):
-                  target_cliques = [from_clique, to_clique] if to_clique != from_clique else [to_clique]
+                    target_cliques = [from_clique, to_clique] if to_clique != from_clique else [to_clique]
                 else:
-                  target_cliques = [to_clique - 1]
+                    target_cliques = [to_clique - 1]
 
                 nodes_to_reallocate, solution = self.reinsert(nodes_to_reallocate, solution,
-                                                                      target_cliques)
+                                                              target_cliques)
 
             if (len(nodes_to_reallocate) + objective_function(solution)) < objective_function(best_solution):
                 for node in nodes_to_reallocate:
                     idx = self.node_to_index[node]
                     self.M = update_M_addition(self.graph, self.M, node, self.node_to_index)
-                    self.edges_per_clique.append([0, 1])
+                    self.gamma_clique_edges_and_nodes.append([0, 1])
                     solution[idx] = int(solution.max()) + 1
 
                 nodes_to_reallocate = None
 
             if not nodes_to_reallocate and objective_function(solution) < objective_function(best_solution):
                 best_solution = solution.copy()
-                M_best_solution = deepcopy(self.M)
-                edges_per_clique_best_solution = deepcopy(self.edges_per_clique)
+                M_best_solution = np.copy(self.M)
+                edges_per_clique_best_solution = deepcopy(self.gamma_clique_edges_and_nodes)
 
             if nodes_to_reallocate:
                 break
 
         self.M = M_best_solution
-        self.edges_per_clique = edges_per_clique_best_solution
+        self.gamma_clique_edges_and_nodes = edges_per_clique_best_solution
         return best_solution
 
     def merge_driven_tabu_search(self, search_depth, solution):
@@ -445,8 +453,8 @@ class MQCPP_solver:
         for clique_id in clusters_to_fill:
             if self.verify_allocation(node, clique_id):
                 self.M = update_M_allocation(self.graph, self.M, node, clique_id, self.node_to_index)
-                self.edges_per_clique[clique_id][0] += self.M[node_idx][clique_id]
-                self.edges_per_clique[clique_id][1] += 1
+                self.gamma_clique_edges_and_nodes[clique_id][0] += self.M[node_idx][clique_id]
+                self.gamma_clique_edges_and_nodes[clique_id][1] += 1
                 solution[node_idx] = clique_id
                 return self.reinsert(nodes_to_reallocate[1:], solution, clusters_to_fill)
 

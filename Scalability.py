@@ -2,12 +2,12 @@ from Function import function
 import random
 import numpy as np
 
-scalability_instances_file_paths = ['instances/p-hat500-3.mtx','instances/662_bus.mtx', 'instances/brock800-3.mtx', 'instances/email-dnc-corecipient.edges', 'instances/Batman_Returns.txt', 'instances/4-FullIns_3.txt', 'instances/p-hat500-1.mtx'] # fatte
+scalability_instances_file_paths = ['instances/Batman_Returns.txt', 'instances/4-FullIns_3.txt', 'instances/p-hat500-1.mtx', 'instances/p-hat500-3.mtx','instances/662_bus.mtx', 'instances/brock800-3.mtx', 'instances/email-dnc-corecipient.edges']
 
 seed = 40
 random.seed(seed)
 np.random.seed(seed)
-gammas = [0.3, 0.7, 0.8]
+gammas = [0.3, 0.7, 0.9]
 cutoff_times = [500, 1000]
 cutoff_time_gurobi = 2400
 plot = True

@@ -5,8 +5,6 @@ import numpy as np
 
 test_instances_file_paths = ['instances/Memento.txt', 'instances/the_x_files.txt', 'instances/high-tech.txt', 'instances/mexican.paj']
 
-scalability_instances_file_paths = ['instances/p-hat500-3.mtx','instances/662_bus.mtx', 'instances/brock800-3.mtx', 'instances/email-dnc-corecipient.edges', 'instances/Batman_Returns.txt', 'instances/4-FullIns_3.txt', 'instances/p-hat500-1.mtx'] # fatte
-
 seed = 40
 random.seed(seed)
 np.random.seed(seed)
