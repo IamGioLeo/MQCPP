@@ -134,23 +134,26 @@ def _process_instance(graph, graph_name, gamma, cutoff_time, cutoff_time_gurobi,
         _write_csv_results(csv_path, 'ILS', ils_result)
 
     if gurobi_flag:
-        try:
-            gurobi_results = _run_gurobi_solver(graph, gamma, cutoff_time_gurobi)
+        if dimension == 'small':
+            try:
+                gurobi_results = _run_gurobi_solver(graph, gamma, cutoff_time_gurobi)
 
-            if plot_flag and dimension == 'small':
-                plot_gurobi_solution(graph, gurobi_results['x'], gurobi_results['UB'], gamma, graph_name)
+                if plot_flag and dimension == 'small':
+                    plot_gurobi_solution(graph, gurobi_results['x'], gurobi_results['UB'], gamma, graph_name)
 
-            if csv_path:
-                gurobi_result = _create_result_data(
-                    graph_name, dimension, graph, gamma,
-                    gurobi_results['total_time'], None,
-                    gurobi_results['total_time'], gurobi_results['best_solution'], 'gurobi'
-                )
-                _write_csv_results(csv_path, 'gurobi', gurobi_result)
+                if csv_path:
+                    gurobi_result = _create_result_data(
+                        graph_name, dimension, graph, gamma,
+                        gurobi_results['total_time'], None,
+                        gurobi_results['total_time'], gurobi_results['best_solution'], 'gurobi'
+                    )
+                    _write_csv_results(csv_path, 'gurobi', gurobi_result)
 
-        except gb.GurobiError as e:
-            print(f"\033[93mErrore Gurobi: {e}\033[0m")
-            _handle_gurobi_error(graph_name, dimension, graph, gamma, csv_path)
+            except gb.GurobiError as e:
+                print(f"\033[93mErrore Gurobi: {e}\033[0m")
+                _handle_gurobi_error(graph_name, dimension, graph, gamma, csv_path)
+        else:
+            print(f"The graph {graph_name} is too large to be solved in a reasonable time using Gurobi.")
 
 
 def function(instances_file_paths, gammas, cutoff_times, plot_flag: bool = True, gurobi_flag: bool = False,
