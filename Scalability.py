@@ -8,7 +8,7 @@ seed = 40
 random.seed(seed)
 np.random.seed(seed)
 gammas = [0.3, 0.7, 0.9]
-cutoff_times = [500, 1000]
+cutoff_times = [500, 1200]
 cutoff_time_gurobi = 2400
 plot = True
 gurobi_flag = True

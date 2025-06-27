@@ -1,9 +1,6 @@
-import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
-import seaborn as sns
 import numpy as np
-
+import pandas as pd
 
 test_ILS_path = '01_final_test_ILS.csv'
 test_gurobi_path = '01_final_test_gurobi.csv'
@@ -21,15 +18,18 @@ def csv_to_table(ILS_path, gurobi_path):
     df["Initial_solution_time"] = df["Initial_solution_time"].apply(lambda x: np.trunc(x * 1000) / 1000)
     df["Best_solution_time"] = df["Best_solution_time"].apply(lambda x: np.trunc(x * 1000) / 1000)
 
-
-    df_to_print = df[["Graph", "Gamma", "Time", "Initial_solution_time","Best_solution_time","Best_solution_size", "Solver"]].rename(columns={"Initial_solution_time": "IS_time","Best_solution_time": "S_time","Best_solution_size": "S"})
+    df_to_print = df[["Graph", "Gamma", "Time", "Initial_solution_time", "Best_solution_time", "Best_solution_size",
+                      "Solver"]].rename(
+        columns={"Initial_solution_time": "IS_time", "Best_solution_time": "S_time", "Best_solution_size": "S"})
 
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     columns_to_print = ["Graph", "Gamma", "Time", "IS_time", "S_time", "S", "Solver"]
     print(df_to_print[columns_to_print])
 
-csv_to_table(test_ILS_path,test_gurobi_path)
+
+csv_to_table(test_ILS_path, test_gurobi_path)
+
 
 def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path):
     df1 = pd.read_csv(ILS_path)
@@ -52,7 +52,9 @@ def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path):
     plt.grid(True, axis='y')
     plt.show()
 
+
 best_solution_comparison_ILS_gurobi(test_ILS_path, test_gurobi_path)
+
 
 def time_comparison_ILS_gurobi(ILS_path, gurobi_path):
     df1 = pd.read_csv(ILS_path)
@@ -73,7 +75,8 @@ def time_comparison_ILS_gurobi(ILS_path, gurobi_path):
     plt.xticks(rotation=45, ha="right")
     plt.tight_layout()
     plt.legend(title="Solver")
-    plt.grid(True, axis= 'y')
+    plt.grid(True, axis='y')
     plt.show()
+
 
 time_comparison_ILS_gurobi(test_ILS_path, test_gurobi_path)
