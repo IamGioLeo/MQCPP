@@ -1,10 +1,11 @@
 import datetime
-import random
-from copy import deepcopy
-import networkx as nx
-import numpy as np
 import itertools
+import random
 from collections import defaultdict
+from copy import deepcopy
+
+import numpy as np
+
 
 def objective_function(solution):
     return int(solution.max()) + 1
@@ -91,7 +92,7 @@ class MQCPP_solver:
       solution = np.where(solution > gamma_clique_to_check, solution - 1, solution)
       return solution
 
-    def verify_reallocate(self, node, from_clique_id, to_clique_id, solution):
+    def verify_reallocate(self, node, from_clique_id, to_clique_id):
         edge_count_from = self.edges_per_clique[from_clique_id][0] - self.M[self.node_to_index[node]][from_clique_id]
 
         edge_count_to = self.edges_per_clique[to_clique_id][0] + self.M[self.node_to_index[node]][to_clique_id]
@@ -101,7 +102,7 @@ class MQCPP_solver:
 
         return valid_from and valid_to
 
-    def verify_allocation(self, node, clique_id, solution):
+    def verify_allocation(self, node, clique_id):
         edge_count = self.edges_per_clique[clique_id][0] + self.M[self.node_to_index[node]][clique_id]
 
         return edge_count >= self.z[self.edges_per_clique[clique_id][1] + 1]
@@ -124,7 +125,7 @@ class MQCPP_solver:
             for other_clique in unique_cliques:
                 if other_clique == current_clique:
                     continue
-                if self.verify_allocation(node, other_clique, solution):
+                if self.verify_allocation(node, other_clique):
                     allocable_elsewhere = True
                     break
 
@@ -155,7 +156,7 @@ class MQCPP_solver:
                 if to_clique == from_clique:
                     continue
 
-                if self.verify_reallocate(node, from_clique, to_clique, solution):
+                if self.verify_reallocate(node, from_clique, to_clique):
                     gain = self.M[node_idx, to_clique] - self.M[node_idx, from_clique]
                     if gain > best_gain:
                         best_gain = gain
@@ -442,7 +443,7 @@ class MQCPP_solver:
         node_idx = self.node_to_index[node]
 
         for clique_id in clusters_to_fill:
-            if self.verify_allocation(node, clique_id, solution):
+            if self.verify_allocation(node, clique_id):
                 self.M = update_M_allocation(self.graph, self.M, node, clique_id, self.node_to_index)
                 self.edges_per_clique[clique_id][0] += self.M[node_idx][clique_id]
                 self.edges_per_clique[clique_id][1] += 1
@@ -450,7 +451,6 @@ class MQCPP_solver:
                 return self.reinsert(nodes_to_reallocate[1:], solution, clusters_to_fill)
 
         return nodes_to_reallocate, solution
-
 
     def solution_to_subgraphs(self, solution):
 

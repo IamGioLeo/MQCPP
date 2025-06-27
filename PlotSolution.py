@@ -59,7 +59,6 @@ def plot_gurobi_solution(graph, x, UB, gamma=None, graph_name=None):
     n = graph.number_of_nodes()
     pos = nx.spring_layout(graph, seed=42)
 
-    # Ricostruisci cluster dai valori di x
     clusters = {i: [] for i in range(UB)}
     for v in range(1, n + 1):
         for i in range(UB):
@@ -67,10 +66,8 @@ def plot_gurobi_solution(graph, x, UB, gamma=None, graph_name=None):
                 clusters[i].append(v)
                 break
 
-    # Rimuovi i cluster vuoti
     clusters = {i: nodes for i, nodes in clusters.items() if nodes}
 
-    # Colora i nodi e gli archi per cluster
     for idx, (cluster_id, nodes) in enumerate(clusters.items()):
         color = color_map[idx % len(color_map)]
         if graph_name and gamma:
@@ -87,7 +84,6 @@ def plot_gurobi_solution(graph, x, UB, gamma=None, graph_name=None):
                 if u < v and graph.has_edge(u, v):
                     edge_color_dict[(u, v)] = color
 
-    # Default color for unassigned nodes/edges
     nodes_colors = [node_color_dict.get(node, 'gray') for node in graph.nodes()]
     edges_colors = [edge_color_dict.get(tuple(sorted(edge)), 'gray') for edge in graph.edges()]
 

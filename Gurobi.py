@@ -3,7 +3,7 @@ from gurobipy import GRB
 from MQCPP import (MQCPP_solver)
 
 
-def gurobi(graph, gamma,cutoff_time):
+def gurobi(graph, gamma, cutoff_time):
     n = graph.number_of_nodes()
     initial_solution = MQCPP_solver(graph, gamma).generate_initial_solution()
     UB = max(initial_solution) + 1
