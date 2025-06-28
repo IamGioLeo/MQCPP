@@ -43,7 +43,6 @@ def plot_solution(graph, solution, graph_name=None, gamma=None):
     else:
         plt.title("Grafo principale con sottografi evidenziati")
 
-    # Aggiunta legenda
     plt.legend(handles=legend_patches, title="Sottografi", loc="best")
 
     plt.show()
@@ -88,7 +87,8 @@ def plot_gurobi_solution(graph, x, UB, gamma=None, graph_name=None):
     edges_colors = [edge_color_dict.get(tuple(sorted(edge)), 'gray') for edge in graph.edges()]
 
     fig = plt.figure(figsize=(12, 9))
-    fig.canvas.manager.set_window_title(f"Grafo {graph_name} con gamma = {gamma}" if (graph_name and gamma) else "Grafo")
+    fig.canvas.manager.set_window_title(
+        f"Grafo {graph_name} con gamma = {gamma}" if (graph_name and gamma) else "Grafo")
 
     nx.draw(graph, pos,
             node_color=nodes_colors,

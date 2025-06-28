@@ -44,7 +44,7 @@ def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path):
     pivot = grouped.pivot(index="Instance", columns="Solver", values="Best_solution_size")
 
     pivot.plot(kind="bar", figsize=(12, 6))
-    plt.ylabel("Average Best Solution Size")
+    plt.ylabel("Best Solution Size")
     plt.title("Comparison of Best Solution Size by Instance and Solver")
     plt.xticks(rotation=45, ha="right")
     plt.tight_layout()
@@ -70,7 +70,7 @@ def time_comparison_ILS_gurobi(ILS_path, gurobi_path):
 
     pivot.plot(kind="bar", figsize=(12, 6))
     plt.yscale("log")
-    plt.ylabel("Average Best Solution Size")
+    plt.ylabel("Best Solution Time")
     plt.title("Comparison of Best Solution Time by Instance and Solver")
     plt.xticks(rotation=45, ha="right")
     plt.tight_layout()

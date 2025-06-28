@@ -298,7 +298,7 @@ class MQCPP_solver:
 
         self.best_solution_time = self.initial_solution_time
         starting_time = datetime.datetime.now()
-        while ((datetime.datetime.now() - starting_time).total_seconds() < cutoff_time):
+        while (datetime.datetime.now() - starting_time).total_seconds() < cutoff_time:
             if objective_function(best_solution) == 1:
                 break
             found_solution, current_solution = self.two_phase_local_search(current_solution, alpha, beta)
@@ -363,7 +363,7 @@ class MQCPP_solver:
 
                 update_tabu_list(self.tabu_list)
 
-                if (old_max == objective_function(solution)):
+                if old_max == objective_function(solution):
                     target_cliques = [from_clique, to_clique] if to_clique != from_clique else [to_clique]
                 else:
                     target_cliques = [to_clique - 1]
