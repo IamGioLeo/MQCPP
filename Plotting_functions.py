@@ -61,9 +61,13 @@ def plot_gurobi_solution(graph, x, UB, gamma=None, graph_name=None):
     clusters = {i: [] for i in range(UB)}
     for v in range(1, n + 1):
         for i in range(UB):
-            if x[v, i].X > 0.5:
-                clusters[i].append(v)
-                break
+            try:
+                if x[v, i].X > 0.5:
+                    clusters[i].append(v)
+                    break
+            except Exception as e:
+                print(f"\033[93mErrore: non è possibile accedere alla variabile X di gurobi\033[0m")
+                return
 
     clusters = {i: nodes for i, nodes in clusters.items() if nodes}
 
