@@ -28,7 +28,7 @@ def csv_to_table(ILS_path, gurobi_path):
     print(df_to_print[columns_to_print])
 
 
-csv_to_table(test_ILS_path, test_gurobi_path)
+csv_to_table(scalability_ILS_path, scalability_gurobi_path)
 
 
 def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path):
@@ -53,7 +53,7 @@ def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path):
     plt.show()
 
 
-best_solution_comparison_ILS_gurobi(test_ILS_path, test_gurobi_path)
+best_solution_comparison_ILS_gurobi(scalability_ILS_path, scalability_gurobi_path)
 
 
 def time_comparison_ILS_gurobi(ILS_path, gurobi_path):
@@ -79,4 +79,4 @@ def time_comparison_ILS_gurobi(ILS_path, gurobi_path):
     plt.show()
 
 
-time_comparison_ILS_gurobi(test_ILS_path, test_gurobi_path)
+time_comparison_ILS_gurobi(scalability_ILS_path, scalability_gurobi_path)

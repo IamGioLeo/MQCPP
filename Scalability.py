@@ -1,6 +1,8 @@
-from Utility_functions import function
 import random
+
 import numpy as np
+
+from Utility_functions import function
 
 scalability_instances_file_paths = ['instances/Batman_Returns.txt', 'instances/4-FullIns_3.txt',
                                     'instances/p-hat500-1.mtx', 'instances/p-hat500-3.mtx', 'instances/662_bus.mtx',
