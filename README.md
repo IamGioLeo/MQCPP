@@ -20,7 +20,7 @@ This repository contains the code written for the Mathematical Optimization exam
    - **Description**: Includes functions for displaying information about the results of the solvers execution.
 
 6. **Scalability.py**  
-   - **Description**: Scalability analysis of the algorithm, performed on 18 instances (6 graphs and 3 values of gamma).
+   - **Description**: Scalability analysis of the algorithm, performed on 21 instances (7 graphs and 3 values of gamma).
 
 7. **Test.py**  
    - **Description**: Quick test with small instances, performed with 12 instances (4 graphs and 3 values of gamma).
