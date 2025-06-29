@@ -31,11 +31,14 @@ def csv_to_table(ILS_path, gurobi_path):
 csv_to_table(scalability_ILS_path, scalability_gurobi_path)
 
 
-def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path):
+def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path, graph_names=None):
     df1 = pd.read_csv(ILS_path)
     df2 = pd.read_csv(gurobi_path)
 
     df = pd.concat([df1, df2], ignore_index=True)
+
+    if graph_names:
+        df = df[df["Graph"].isin(graph_names)]
 
     df["Instance"] = df.apply(lambda row: f"{row['Graph']} {row['Gamma']}", axis=1)
 
@@ -43,7 +46,25 @@ def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path):
 
     pivot = grouped.pivot(index="Instance", columns="Solver", values="Best_solution_size")
 
-    pivot.plot(kind="bar", figsize=(12, 6))
+    ax = pivot.plot(kind="bar", figsize=(12, 6))
+
+    for container in ax.containers:
+        for bar in container:
+            height = bar.get_height()
+            if not np.isfinite(height) or height == 0:
+                label = ""
+            else:
+                label = f"{int(round(height))}"
+
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                height,
+                label,
+                ha='center',
+                va='bottom',
+                fontsize=8
+            )
+
     plt.ylabel("Best Solution Size")
     plt.title("Comparison of Best Solution Size by Instance and Solver")
     plt.xticks(rotation=45, ha="right")
@@ -54,13 +75,18 @@ def best_solution_comparison_ILS_gurobi(ILS_path, gurobi_path):
 
 
 best_solution_comparison_ILS_gurobi(scalability_ILS_path, scalability_gurobi_path)
+scalability_selected_graphs = ['4-FullIns_3.txt', 'Batman_Returns.txt', 'brock800-3.mtx', 'p-hat500-3.mtx']
+best_solution_comparison_ILS_gurobi(scalability_ILS_path, scalability_gurobi_path, scalability_selected_graphs)
 
 
-def time_comparison_ILS_gurobi(ILS_path, gurobi_path):
+def time_comparison_ILS_gurobi(ILS_path, gurobi_path, graph_names=None):
     df1 = pd.read_csv(ILS_path)
     df2 = pd.read_csv(gurobi_path)
 
     df = pd.concat([df1, df2], ignore_index=True)
+
+    if graph_names:
+        df = df[df["Graph"].isin(graph_names)]
 
     df["Instance"] = df.apply(lambda row: f"{row['Graph']} {row['Gamma']}", axis=1)
 
