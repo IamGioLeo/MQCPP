@@ -65,7 +65,7 @@ def plot_gurobi_solution(graph, x, UB, gamma=None, graph_name=None):
                 if x[v, i].X > 0.5:
                     clusters[i].append(v)
                     break
-            except Exception as e:
+            except Exception:
                 print(f"\033[93mErrore: non è possibile accedere alla variabile X di gurobi\033[0m")
                 return
 
