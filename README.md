@@ -27,7 +27,6 @@ This repository contains the code written for the Mathematical Optimization exam
 
 8. **Utility_functions.py**  
    - **Description**: Contains general utility functions.
-   - 
 ## Contributors
 
 - Daniele Maijnelli
